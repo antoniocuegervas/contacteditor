@@ -29,3 +29,6 @@ A CRM contact editor
 	PartnerServiceErrorCode=
 	CorrelationID=5df64d59-712e-4016-ac20-3a009be17ede
 
+2. No intellisense (fixed)
+
+3. No intellisense again on unit tests

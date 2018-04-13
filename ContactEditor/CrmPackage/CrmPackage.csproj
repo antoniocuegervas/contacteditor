@@ -47,9 +47,14 @@
     <Folder Include="WebResources" />
   </ItemGroup>
   <ItemGroup>
-    <CRMWebResource Include="WebResources\html\HelloWorld.htm">
-      <DisplayName>ced1_/html/HelloWorld.htm</DisplayName>
-      <UniqueName>ced1_/html/HelloWorld.htm</UniqueName>
+    <CRMWebResource Include="WebResources\html\ContactsGrid.htm">
+      <DisplayName>ced1_/html/ContactsGrid</DisplayName>
+      <UniqueName>ced1_/html/ContactsGrid</UniqueName>
+      <WebResourceType>WebPage</WebResourceType>
+    </CRMWebResource>
+    <CRMWebResource Include="WebResources\html\UnitTests.htm">
+      <DisplayName>ced1_/html/UnitTests</DisplayName>
+      <UniqueName>ced1_/html/UnitTests</UniqueName>
       <WebResourceType>WebPage</WebResourceType>
     </CRMWebResource>
     <CRMWebResource Include="WebResources\js\ClientHooks.js">
@@ -60,6 +65,11 @@
     <CRMWebResource Include="WebResources\js\ClientUI.js">
       <DisplayName>ced1_/js/ClientUI.js</DisplayName>
       <UniqueName>ced1_/js/ClientUI.js</UniqueName>
+      <WebResourceType>Script</WebResourceType>
+    </CRMWebResource>
+    <CRMWebResource Include="WebResources\js\ClientUI.UnitTests.debug.js">
+      <DisplayName>ced1_/js/ClientUI.UnitTests.debug.js</DisplayName>
+      <UniqueName>ced1_/js/ClientUI.UnitTests.debug.js</UniqueName>
       <WebResourceType>Script</WebResourceType>
     </CRMWebResource>
   </ItemGroup>

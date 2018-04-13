@@ -23,18 +23,10 @@ ClientUI.Model.Contact.prototype = {
 Type.registerNamespace('ClientUI.ViewModel');
 
 ////////////////////////////////////////////////////////////////////////////////
-// ClientUI.ViewModel.HelloWorldViewModel
+// ClientUI.ViewModel.ContactsViewModel
 
-ClientUI.ViewModel.HelloWorldViewModel = function ClientUI_ViewModel_HelloWorldViewModel() {
-    ClientUI.ViewModel.HelloWorldViewModel.initializeBase(this);
-    this.Message = ko.observable('Hello World');
-}
-ClientUI.ViewModel.HelloWorldViewModel.prototype = {
-    Message: null,
-    
-    FooCommand: function ClientUI_ViewModel_HelloWorldViewModel$FooCommand() {
-        this.Message(String.format('The time now is {0}', Date.get_now().toLocaleTimeString()));
-    }
+ClientUI.ViewModel.ContactsViewModel = function ClientUI_ViewModel_ContactsViewModel() {
+    ClientUI.ViewModel.ContactsViewModel.initializeBase(this);
 }
 
 
@@ -42,6 +34,7 @@ ClientUI.ViewModel.HelloWorldViewModel.prototype = {
 // ClientUI.ViewModel.ObservableContact
 
 ClientUI.ViewModel.ObservableContact = function ClientUI_ViewModel_ObservableContact() {
+    this.contacts = new SparkleXrm.GridEditor.EntityDataViewModel(5, ClientUI.Model.Contact, true);
     this.contactid = ko.observable();
     this.firstname = ko.observable();
     this.lastname = ko.observable();
@@ -70,6 +63,10 @@ ClientUI.ViewModel.ObservableContact.prototype = {
         return contact;
     },
     
+    search: function ClientUI_ViewModel_ObservableContact$search() {
+        this.contacts.set_fetchXml("<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false' returntotalrecordcount='true' count='{0}' paging-cookie={1} page='{2}'>\r\n  <entity name='contact'>\r\n    <attribute name='contactid' />\r\n    <attribute name='firstname' />\r\n    <attribute name='lastname' />\r\n    <attribute name='preferredcontactmethodcode' />\r\n    <attribute name='parentcustomerid' />\r\n{3}\r\n  </entity>\r\n</fetch>");
+    },
+    
     saveCommand: function ClientUI_ViewModel_ObservableContact$saveCommand() {
         this.isBusy(true);
         var contact = this._toContact$1();
@@ -92,22 +89,16 @@ ClientUI.ViewModel.ObservableContact.prototype = {
 Type.registerNamespace('ClientUI.View');
 
 ////////////////////////////////////////////////////////////////////////////////
-// ClientUI.View.HelloWorldView
+// ClientUI.View.ContactsView
 
-ClientUI.View.HelloWorldView = function ClientUI_View_HelloWorldView() {
-}
-ClientUI.View.HelloWorldView.Init = function ClientUI_View_HelloWorldView$Init() {
-    Xrm.PageEx.majorVersion = 2013;
-    ClientUI.View.HelloWorldView.vm = new ClientUI.ViewModel.HelloWorldViewModel();
-    SparkleXrm.ViewBase.registerViewModel(ClientUI.View.HelloWorldView.vm);
+ClientUI.View.ContactsView = function ClientUI_View_ContactsView() {
 }
 
 
 ClientUI.Model.Contact.registerClass('ClientUI.Model.Contact', Xrm.Sdk.Entity);
-ClientUI.ViewModel.HelloWorldViewModel.registerClass('ClientUI.ViewModel.HelloWorldViewModel', SparkleXrm.ViewModelBase);
+ClientUI.ViewModel.ContactsViewModel.registerClass('ClientUI.ViewModel.ContactsViewModel', SparkleXrm.ViewModelBase);
 ClientUI.ViewModel.ObservableContact.registerClass('ClientUI.ViewModel.ObservableContact', SparkleXrm.ViewModelBase);
-ClientUI.View.HelloWorldView.registerClass('ClientUI.View.HelloWorldView');
-ClientUI.View.HelloWorldView.vm = null;
+ClientUI.View.ContactsView.registerClass('ClientUI.View.ContactsView');
 })();
 
 //! This script was generated using Script# v0.7.4.0

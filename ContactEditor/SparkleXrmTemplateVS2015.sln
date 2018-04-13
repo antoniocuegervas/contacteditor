@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Debug Post Build Events", "
 		{1992B7B4-ECE5-4458-A9A7-47E7F26AAE32} = {1992B7B4-ECE5-4458-A9A7-47E7F26AAE32}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientUI.UnitTests", "ClientUI.UnitTests\ClientUI.UnitTests.csproj", "{2EF67E5E-ECD9-4654-BF31-735364429DD1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,9 +46,25 @@ Global
 		{84644205-0774-43B8-8333-157AD518A685}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84644205-0774-43B8-8333-157AD518A685}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84644205-0774-43B8-8333-157AD518A685}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EF67E5E-ECD9-4654-BF31-735364429DD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EF67E5E-ECD9-4654-BF31-735364429DD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EF67E5E-ECD9-4654-BF31-735364429DD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EF67E5E-ECD9-4654-BF31-735364429DD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(CRMSolutionProperties) = preSolution
+		SolutionIsBoundToCRM = True
+	EndGlobalSection
+	GlobalSection(CRMSolutionProperties) = preSolution
+		SolutionIsBoundToCRM = True
+	EndGlobalSection
+	GlobalSection(CRMSolutionProperties) = preSolution
+		SolutionIsBoundToCRM = True
+	EndGlobalSection
+	GlobalSection(CRMSolutionProperties) = preSolution
+		SolutionIsBoundToCRM = True
 	EndGlobalSection
 	GlobalSection(CRMSolutionProperties) = preSolution
 		SolutionIsBoundToCRM = True
