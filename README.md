@@ -3,6 +3,21 @@ A CRM contact editor
 
 ## What I did
 
+1. Trial info:
+
+	orgname: cuexrm7
+	userid: acue@cuexrm7.onmicrosoft.com
+	version: 1612 (9.0.2.52)
+	 
+2. Create empty crm solution: 
+
+	contacteditor (prefix ced1_)
+
+3. Install Developer toolkit (I'm using VS2015)
+
+4. Download SparkleXrm from github, copy \SparkleXrm-master\SparkleXrmSamples\SparkleXrmTemplateVS2015 as template
+
+
 ## What I would do next
 
 ## Issues & problems that I came across
