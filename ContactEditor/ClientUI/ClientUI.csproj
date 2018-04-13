@@ -36,7 +36,9 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Model\Contact.cs" />
     <Compile Include="ViewModel\HelloWorldViewModel.cs" />
+    <Compile Include="ViewModel\ObservableContact.cs" />
     <Compile Include="View\HelloWorldView.cs" />
     <None Include="packages.config" />
     <None Include="Properties\FxCop.ruleset" />
