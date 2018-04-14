@@ -9,6 +9,7 @@ using SparkleXrm.GridEditor;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Xrm;
 using Xrm.Sdk;
 
 namespace ClientUI.ViewModel
@@ -23,6 +24,8 @@ namespace ClientUI.ViewModel
         public Observable<ObservableContact> ContactEdit;
         [PreserveCase]
         public DependentObservable<bool> AllowAddNew;
+        [PreserveCase]
+        public Observable<bool> AllowOpen;
         [PreserveCase]
         public EntityDataViewModel Contacts = new EntityDataViewModel(10, typeof(Contact), true);
         public Observable<EntityReference> ParentCustomerId = Knockout.Observable<EntityReference>();
@@ -40,6 +43,8 @@ namespace ClientUI.ViewModel
             Contacts.OnDataLoaded.Subscribe(Contacts_OnDataLoaded);
             ObservableContact.RegisterValidation(Contacts.ValidationBinder);
             AllowAddNew = Knockout.DependentObservable<bool>(AllowAddNewComputed);
+            AllowOpen = Knockout.Observable<bool>(false);
+            Contacts.OnSelectedRowsChanged += Contacts_OnSelectedRowsChanged;
         }
         #endregion
 
@@ -47,12 +52,25 @@ namespace ClientUI.ViewModel
         private void Contacts_OnDataLoaded(EventData e, object data)
         {
             DataLoadedNotifyEventArgs args = (DataLoadedNotifyEventArgs)data;
-            for (int i=0; i<args.To; i++)
+            for (int i = 0; i < args.To; i++)
             {
                 Contact contact = (Contact)Contacts.GetItem(i);
                 if (contact == null)
                     return;
                 contact.PropertyChanged += Contact_PropertyChanged;
+            }
+        }
+
+        private void Contacts_OnSelectedRowsChanged()
+        {
+            List<int> selectedRows = DataViewBase.RangesToRows(Contacts.GetSelectedRows());
+            if (selectedRows.Count == 1)
+            {
+                AllowOpen.SetValue(true);
+            }
+            else
+            {
+                AllowOpen.SetValue(false);
             }
         }
 
@@ -62,7 +80,7 @@ namespace ClientUI.ViewModel
             Contact contactToUpdate = new Contact();
             contactToUpdate.ContactId = new Guid(updated.Id);
             bool updateRequired = false;
-            switch(e.PropertyName)
+            switch (e.PropertyName)
             {
                 case "firstname":
                     contactToUpdate.FirstName = updated.FirstName;
@@ -109,7 +127,7 @@ namespace ClientUI.ViewModel
 
         public void Search()
         {
-            string parentCustomerId= ParentCustomerId.GetValue().Id.ToString().Replace("{", "").Replace("}", "");
+            string parentCustomerId = ParentCustomerId.GetValue().Id.ToString().Replace("{", "").Replace("}", "");
 
             Contacts.FetchXml = @"<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>
   <entity name='contact'>
@@ -138,13 +156,56 @@ namespace ClientUI.ViewModel
         public void DeleteSelectedCommand()
         {
 
+            List<int> selectedRows = DataViewBase.RangesToRows(Contacts.GetSelectedRows());
+            if (selectedRows.Count == 0)
+                return;
+
+            List<Entity> itemsToRemove = new List<Entity>();
+            foreach (int row in selectedRows)
+            {
+                itemsToRemove.Add((Entity)Contacts.GetItem(row));
+            }
+            try
+            {
+                foreach (Entity item in itemsToRemove)
+                {
+                    OrganizationServiceProxy.Delete_(item.LogicalName, new Guid(item.Id));
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage.SetValue(ex.ToString());
+            }
+            Contacts.RaiseOnSelectedRowsChanged(null);
+            Contacts.Reset();
+            Contacts.Refresh();
         }
 
-        //[PreserveCase]
-        //public void OpenAssociatedSubGridCommand()
-        //{
+        [PreserveCase]
+        public void OpenSelectedRecordCommand()
+        {
 
-        //}
+            List<int> selectedRows = DataViewBase.RangesToRows(Contacts.GetSelectedRows());
+            if (selectedRows.Count != 1)
+                return;
+
+            List<Entity> itemsToOpen = new List<Entity>();
+            foreach (int row in selectedRows)
+            {
+                itemsToOpen.Add((Entity)Contacts.GetItem(row));
+            }
+            try
+            {
+                foreach (Entity item in itemsToOpen)
+                {
+                    Utility.OpenEntityForm(item.LogicalName, item.Id, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage.SetValue(ex.ToString());
+            }
+        }
         #endregion
         #region Computed Observables
         public bool AllowAddNewComputed()
@@ -152,7 +213,6 @@ namespace ClientUI.ViewModel
             EntityReference parent = ParentCustomerId.GetValue();
             return parent != null && parent.Id != null && parent.Id.Value != null && parent.Id.Value.Length > 0;
         }
-
         #endregion
     }
 }

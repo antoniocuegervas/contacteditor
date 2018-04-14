@@ -40,3 +40,5 @@ A CRM contact editor
 6. Accidentally removed the [PreserveCase] from SaveCommand(), which yield a few frustrating head-scratching moments
 
 7. Couldn't figure out how to make the grid add a new line a force the user to write something on the lastname (so it validates) before creating the record, so I had to add a small form for this
+
+8. Couldn't open records with double click (the event is there, but it interferes with the cells, and only works if you don't click an editable cell), so I'm adding a button to open a selected record

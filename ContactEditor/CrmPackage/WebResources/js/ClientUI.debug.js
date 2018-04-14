@@ -38,10 +38,13 @@ ClientUI.ViewModel.ContactsViewModel = function ClientUI_ViewModel_ContactsViewM
     this.Contacts.onDataLoaded.subscribe(ss.Delegate.create(this, this._contacts_OnDataLoaded$1));
     ClientUI.ViewModel.ObservableContact.registerValidation(this.Contacts.validationBinder);
     this.AllowAddNew = ko.dependentObservable(ss.Delegate.create(this, this.allowAddNewComputed));
+    this.AllowOpen = ko.observable(false);
+    this.Contacts.add_onSelectedRowsChanged(ss.Delegate.create(this, this._contacts_OnSelectedRowsChanged$1));
 }
 ClientUI.ViewModel.ContactsViewModel.prototype = {
     ContactEdit: null,
     AllowAddNew: null,
+    AllowOpen: null,
     
     _contacts_OnDataLoaded$1: function ClientUI_ViewModel_ContactsViewModel$_contacts_OnDataLoaded$1(e, data) {
         var args = data;
@@ -51,6 +54,16 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
                 return;
             }
             contact.add_propertyChanged(ss.Delegate.create(this, this._contact_PropertyChanged$1));
+        }
+    },
+    
+    _contacts_OnSelectedRowsChanged$1: function ClientUI_ViewModel_ContactsViewModel$_contacts_OnSelectedRowsChanged$1() {
+        var selectedRows = SparkleXrm.GridEditor.DataViewBase.rangesToRows(this.Contacts.getSelectedRows());
+        if (selectedRows.length === 1) {
+            this.AllowOpen(true);
+        }
+        else {
+            this.AllowOpen(false);
         }
     },
     
@@ -105,6 +118,52 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
     },
     
     DeleteSelectedCommand: function ClientUI_ViewModel_ContactsViewModel$DeleteSelectedCommand() {
+        var selectedRows = SparkleXrm.GridEditor.DataViewBase.rangesToRows(this.Contacts.getSelectedRows());
+        if (!selectedRows.length) {
+            return;
+        }
+        var itemsToRemove = [];
+        var $enum1 = ss.IEnumerator.getEnumerator(selectedRows);
+        while ($enum1.moveNext()) {
+            var row = $enum1.current;
+            itemsToRemove.add(this.Contacts.getItem(row));
+        }
+        try {
+            var $enum2 = ss.IEnumerator.getEnumerator(itemsToRemove);
+            while ($enum2.moveNext()) {
+                var item = $enum2.current;
+                Xrm.Sdk.OrganizationServiceProxy.delete_(item.logicalName, new Xrm.Sdk.Guid(item.id));
+            }
+        }
+        catch (ex) {
+            this.ErrorMessage(ex.toString());
+        }
+        this.Contacts.raiseOnSelectedRowsChanged(null);
+        this.Contacts.reset();
+        this.Contacts.refresh();
+    },
+    
+    OpenSelectedRecordCommand: function ClientUI_ViewModel_ContactsViewModel$OpenSelectedRecordCommand() {
+        var selectedRows = SparkleXrm.GridEditor.DataViewBase.rangesToRows(this.Contacts.getSelectedRows());
+        if (selectedRows.length !== 1) {
+            return;
+        }
+        var itemsToOpen = [];
+        var $enum1 = ss.IEnumerator.getEnumerator(selectedRows);
+        while ($enum1.moveNext()) {
+            var row = $enum1.current;
+            itemsToOpen.add(this.Contacts.getItem(row));
+        }
+        try {
+            var $enum2 = ss.IEnumerator.getEnumerator(itemsToOpen);
+            while ($enum2.moveNext()) {
+                var item = $enum2.current;
+                Xrm.Utility.openEntityForm(item.logicalName, item.id, null);
+            }
+        }
+        catch (ex) {
+            this.ErrorMessage(ex.toString());
+        }
     },
     
     allowAddNewComputed: function ClientUI_ViewModel_ContactsViewModel$allowAddNewComputed() {
