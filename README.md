@@ -36,3 +36,7 @@ A CRM contact editor
 4. Fiddler doesn't properly capture all traffic on my VM
 
 5. Validations on the ObservableContact don't transmit to the grid (actually they did, the validation was wrong)
+
+6. Accidentally removed the [PreserveCase] from SaveCommand(), which yield a few frustrating head-scratching moments
+
+7. Couldn't figure out how to make the grid add a new line a force the user to write something on the lastname (so it validates) before creating the record, so I had to add a small form for this
