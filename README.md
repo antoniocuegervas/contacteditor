@@ -32,3 +32,5 @@ A CRM contact editor
 2. No intellisense (fixed)
 
 3. No intellisense again on unit tests
+
+4. Fiddler doesn't properly capture all traffic on my VM

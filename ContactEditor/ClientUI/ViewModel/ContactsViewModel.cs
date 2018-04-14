@@ -54,6 +54,7 @@ namespace ClientUI.ViewModel
   <entity name='contact'>
     <attribute name='firstname' />
     <attribute name='lastname' />
+    <attribute name='preferredcontactmethodcode' />
     <attribute name='contactid' />
     {3}
   </entity>

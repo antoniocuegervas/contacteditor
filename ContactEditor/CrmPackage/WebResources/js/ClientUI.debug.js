@@ -46,7 +46,7 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
     },
     
     search: function ClientUI_ViewModel_ContactsViewModel$search() {
-        this.Contacts.set_fetchXml("<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>\r\n  <entity name='contact'>\r\n    <attribute name='firstname' />\r\n    <attribute name='lastname' />\r\n    <attribute name='contactid' />\n    {3}\r\n  </entity>\r\n</fetch>");
+        this.Contacts.set_fetchXml("<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>\r\n  <entity name='contact'>\r\n    <attribute name='firstname' />\r\n    <attribute name='lastname' />\r\n    <attribute name='preferredcontactmethodcode' />\r\n    <attribute name='contactid' />\n    {3}\r\n  </entity>\r\n</fetch>");
         this.Contacts.refresh();
     },
     
@@ -123,8 +123,21 @@ ClientUI.View.ContactsView.Init = function ClientUI_View_ContactsView$Init() {
     Xrm.PageEx.majorVersion = 2013;
     ClientUI.View.ContactsView.vm = new ClientUI.ViewModel.ContactsViewModel();
     var contactsDataBinder = new SparkleXrm.GridEditor.GridDataViewBinder();
-    var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout('First Name,firstname,250,Last Name,lastname,250');
+    var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout('First Name,firstname,250,Last Name,lastname,250,Preferred Contact Method,preferredcontactmethodcode,100');
     var contactsGrid = contactsDataBinder.dataBindXrmGrid(ClientUI.View.ContactsView.vm.Contacts, columns, 'container', 'pager', true, false);
+    var $enum1 = ss.IEnumerator.getEnumerator(columns);
+    while ($enum1.moveNext()) {
+        var col = $enum1.current;
+        switch (col.field) {
+            case 'preferredcontactmethodcode':
+                SparkleXrm.GridEditor.XrmOptionSetEditor.bindColumn(col, 'contact', 'preferredcontactmethodcode', true);
+                break;
+            case 'firstname':
+            case 'lastname':
+                SparkleXrm.GridEditor.XrmTextEditor.bindColumn(col);
+                break;
+        }
+    }
     SparkleXrm.ViewBase.registerViewModel(ClientUI.View.ContactsView.vm);
     $(function() {
         ClientUI.View.ContactsView.vm.search();
