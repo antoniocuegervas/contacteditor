@@ -16,6 +16,9 @@ namespace ClientUI.ViewModel
         public event Action<string> OnSaveComplete;
 
         #region Fields
+        [PreserveCase]
+        public Observable<bool> AddNewVisible = Knockout.Observable<bool>(false);
+
         [ScriptName("contactid")]
         public Observable<Guid> ContactId = Knockout.Observable<Guid>();
 
@@ -38,19 +41,11 @@ namespace ClientUI.ViewModel
         }
 
         #region Methods
-        private Contact ToContact()
-        {
-            Contact contact = new Contact();
-            contact.ContactId = ContactId.GetValue();
-            contact.FirstName = FirstName.GetValue();
-            contact.LastName = LastName.GetValue();
-            contact.ParentCustomerId = ParentCustomerId.GetValue();
-            contact.PreferredContactMethodCode = PreferredContactMethodCode.GetValue();
-            return contact;
-        }
+
         #endregion
 
         #region Commands
+        [PreserveCase]
         public void SaveCommand()
         {
             bool isValid = ((IValidatedObservable)this).IsValid();
@@ -60,8 +55,13 @@ namespace ClientUI.ViewModel
                 return;
             }
             IsBusy.SetValue(true);
+            AddNewVisible.SetValue(false);
 
-            Contact contact = ToContact();
+            Contact contact = new Contact();
+            contact.FirstName = FirstName.GetValue();
+            contact.LastName = LastName.GetValue();
+            contact.ParentCustomerId = ParentCustomerId.GetValue();
+            contact.PreferredContactMethodCode = PreferredContactMethodCode.GetValue();
 
             OrganizationServiceProxy.BeginCreate(contact, delegate (object state) 
             {
@@ -69,6 +69,9 @@ namespace ClientUI.ViewModel
                 {
                     ContactId.SetValue(OrganizationServiceProxy.EndCreate(state));
                     OnSaveComplete(null);
+                    FirstName.SetValue(null);
+                    LastName.SetValue(null);
+                    PreferredContactMethodCode.SetValue(null);
                     ((IValidatedObservable)this).Errors.ShowAllMessages(false);
                 }
                 catch(Exception ex)
@@ -80,6 +83,13 @@ namespace ClientUI.ViewModel
                     IsBusy.SetValue(false);
                 }
             });
+        }
+
+        [PreserveCase]
+        public void CancelCommand()
+        {
+            this.AddNewVisible.SetValue(false);
+
         }
         #endregion
 

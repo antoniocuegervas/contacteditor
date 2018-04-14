@@ -46,17 +46,20 @@ namespace ClientUI.UnitTests
             assert.Expect(1);
             Action done = assert.Async();
 
-            ObservableContact vm = new ObservableContact();
-            vm.ParentCustomerId.SetValue(account.ToEntityReference());
-            vm.FirstName.SetValue("Test first name");
-            vm.LastName.SetValue("Test last name");
-            vm.PreferredContactMethodCode.SetValue(new OptionSetValue(1)); // 1-5
-            vm.OnSaveComplete += delegate (string message)
+            ContactsViewModel vm = new ContactsViewModel(account.ToEntityReference());
+            ObservableContact contact = vm.ContactEdit.GetValue();
+
+
+            //ObservableContact vm = new ObservableContact();
+            contact.FirstName.SetValue("Test first name");
+            contact.LastName.SetValue("Test last name");
+            contact.PreferredContactMethodCode.SetValue(new OptionSetValue(1)); // 1-5
+            contact.OnSaveComplete += delegate (string message)
               {
                   assert.Equal(message, null, "Message " + message);
                   done();
               };
-            vm.SaveCommand();
+            contact.SaveCommand();
         }
     }
 }

@@ -105,6 +105,7 @@
     <!--ko template: { name: 'xrmPleaseWaitBlock', data: {isBusy : isBusy, isBusyProgress : isBusyProgress, isBusyMessage : isBusyMessage}} --><!--/ko-->
     <div class="subgrid-label">CONTACTS</div>
     <div class="toolbar-buttons">
+        <button type="button" class="gridtoolbar-button delete16" id="Delete" data-bind="visible: $root.AllowAddNew, click: $root.DeleteSelectedCommand"></button>
         <button type="button" class="gridtoolbar-button addnew16" id="AddNew" data-bind="visible: $root.AllowAddNew, click: $root.AddNewCommand"></button>
     </div>
 
@@ -114,6 +115,50 @@
             <img class="sparkle-imagestrip-inlineedit_warning" alt="Error" src="../../sparkle_/css/images/transparent_spacer.gif" />
             <span class="sparkle-control-validation-text" data-bind="text: ErrorMessage()"></span>
         </div>
+        <!--ko with:ContactEdit -->
+        <div style="display: none" data-bind='validationOptions: { messageTemplate: "xrmControlValidationMessage" }, fadeVisible: AddNewVisible '>
+            <table class="sparkle-FormSection"
+                   columns="2" label="Contacts" style="table-layout: fixed;" height="1%" valign="top"
+                   cellspacing="0" cellpadding="3">
+                <colgroup>
+                    <col width="130">
+                    <col>
+                </colgroup>
+                <tbody>
+                    <tr valign="top">
+                        <!--ko template: {
+                                name: 'sparkle-form-field',
+                                data: {
+                                    label: 'Last Name',
+                                    field:lastname,
+                                    required:0,
+                                    type:'text',
+                                    disable:false,
+                                    visible:true }
+                                     }-->
+                        <!--/ko-->
+                    </tr>
+                    <tr valign="top">
+                        <!--ko template: {
+                                name: 'sparkle-form-field',
+                                data: {
+                                    label: 'First Name',
+                                    field:firstname,
+                                    required:0,
+                                    type:'text',
+                                    disable:lastname()==null,
+                                    visible:true } }-->
+                        <!--/ko-->
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="right">
+                            <button type="button" class="dialogButton" data-bind='click: SaveCommand, text: "Save", disable: isBusy'></button>
+                            <button type="button" class="dialogButton" data-bind='click: CancelCommand, text: "Cancel"'></button>
+                        </td>
+                    </tr>
+            </table>
+        </div>
+        <!--/ko-->
         <!-- Contacts Grid-->
         <div id="container"></div>
         <div id="pager"></div>

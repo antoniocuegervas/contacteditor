@@ -22,18 +22,24 @@ namespace ClientUI.ViewModel
         [PreserveCase]
         public Observable<ObservableContact> ContactEdit;
         [PreserveCase]
-        public Observable<bool> AllowAddNew = Knockout.Observable<bool>(true);
+        public DependentObservable<bool> AllowAddNew;
         [PreserveCase]
         public EntityDataViewModel Contacts = new EntityDataViewModel(10, typeof(Contact), true);
+        public Observable<EntityReference> ParentCustomerId = Knockout.Observable<EntityReference>();
         #endregion
         #region Constructors
-        public ContactsViewModel()
+        public ContactsViewModel(EntityReference parentCustomerId)
         {
+
+            ParentCustomerId.SetValue(parentCustomerId);
+
             ObservableContact contact = new ObservableContact();
+            contact.ParentCustomerId.SetValue(parentCustomerId);
             ContactEdit = (Observable<ObservableContact>)ValidatedObservableFactory.ValidatedObservable(contact);
             ContactEdit.GetValue().OnSaveComplete += ContactsViewModel_OnSaveComplete;
             Contacts.OnDataLoaded.Subscribe(Contacts_OnDataLoaded);
             ObservableContact.RegisterValidation(Contacts.ValidationBinder);
+            AllowAddNew = Knockout.DependentObservable<bool>(AllowAddNewComputed);
         }
         #endregion
 
@@ -103,12 +109,17 @@ namespace ClientUI.ViewModel
 
         public void Search()
         {
+            string parentCustomerId= ParentCustomerId.GetValue().Id.ToString().Replace("{", "").Replace("}", "");
+
             Contacts.FetchXml = @"<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>
   <entity name='contact'>
     <attribute name='firstname' />
     <attribute name='lastname' />
     <attribute name='preferredcontactmethodcode' />
     <attribute name='contactid' />
+    <filter type='and'>
+        <condition attribute='parentcustomerid' operator='eq' value='" + parentCustomerId + @"' />
+    </filter>
     {3}
   </entity>
 </fetch>";
@@ -120,7 +131,7 @@ namespace ClientUI.ViewModel
         [PreserveCase]
         public void AddNewCommand()
         {
-            
+            ContactEdit.GetValue().AddNewVisible.SetValue(true);
         }
 
         [PreserveCase]
@@ -129,11 +140,19 @@ namespace ClientUI.ViewModel
 
         }
 
-        [PreserveCase]
-        public void OpenAssociatedSubGridCommand()
-        {
+        //[PreserveCase]
+        //public void OpenAssociatedSubGridCommand()
+        //{
 
+        //}
+        #endregion
+        #region Computed Observables
+        public bool AllowAddNewComputed()
+        {
+            EntityReference parent = ParentCustomerId.GetValue();
+            return parent != null && parent.Id != null && parent.Id.Value != null && parent.Id.Value.Length > 0;
         }
+
         #endregion
     }
 }

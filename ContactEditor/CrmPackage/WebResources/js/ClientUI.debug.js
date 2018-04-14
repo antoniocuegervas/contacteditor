@@ -25,19 +25,23 @@ Type.registerNamespace('ClientUI.ViewModel');
 ////////////////////////////////////////////////////////////////////////////////
 // ClientUI.ViewModel.ContactsViewModel
 
-ClientUI.ViewModel.ContactsViewModel = function ClientUI_ViewModel_ContactsViewModel() {
+ClientUI.ViewModel.ContactsViewModel = function ClientUI_ViewModel_ContactsViewModel(parentCustomerId) {
     this.ErrorMessage = ko.observable();
-    this.AllowAddNew = ko.observable(true);
     this.Contacts = new SparkleXrm.GridEditor.EntityDataViewModel(10, ClientUI.Model.Contact, true);
+    this.parentCustomerId = ko.observable();
     ClientUI.ViewModel.ContactsViewModel.initializeBase(this);
+    this.parentCustomerId(parentCustomerId);
     var contact = new ClientUI.ViewModel.ObservableContact();
+    contact.parentcustomerid(parentCustomerId);
     this.ContactEdit = ko.validatedObservable(contact);
     this.ContactEdit().add_onSaveComplete(ss.Delegate.create(this, this._contactsViewModel_OnSaveComplete$1));
     this.Contacts.onDataLoaded.subscribe(ss.Delegate.create(this, this._contacts_OnDataLoaded$1));
     ClientUI.ViewModel.ObservableContact.registerValidation(this.Contacts.validationBinder);
+    this.AllowAddNew = ko.dependentObservable(ss.Delegate.create(this, this.allowAddNewComputed));
 }
 ClientUI.ViewModel.ContactsViewModel.prototype = {
     ContactEdit: null,
+    AllowAddNew: null,
     
     _contacts_OnDataLoaded$1: function ClientUI_ViewModel_ContactsViewModel$_contacts_OnDataLoaded$1(e, data) {
         var args = data;
@@ -91,17 +95,21 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
     },
     
     search: function ClientUI_ViewModel_ContactsViewModel$search() {
-        this.Contacts.set_fetchXml("<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>\r\n  <entity name='contact'>\r\n    <attribute name='firstname' />\r\n    <attribute name='lastname' />\r\n    <attribute name='preferredcontactmethodcode' />\r\n    <attribute name='contactid' />\n    {3}\r\n  </entity>\r\n</fetch>");
+        var parentCustomerId = this.parentCustomerId().id.toString().replaceAll('{', '').replaceAll('}', '');
+        this.Contacts.set_fetchXml("<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>\r\n  <entity name='contact'>\r\n    <attribute name='firstname' />\r\n    <attribute name='lastname' />\r\n    <attribute name='preferredcontactmethodcode' />\r\n    <attribute name='contactid' />\n    <filter type='and'>\n        <condition attribute='parentcustomerid' operator='eq' value='" + parentCustomerId + "' />\n    </filter>\n    {3}\r\n  </entity>\r\n</fetch>");
         this.Contacts.refresh();
     },
     
     AddNewCommand: function ClientUI_ViewModel_ContactsViewModel$AddNewCommand() {
+        this.ContactEdit().AddNewVisible(true);
     },
     
     DeleteSelectedCommand: function ClientUI_ViewModel_ContactsViewModel$DeleteSelectedCommand() {
     },
     
-    OpenAssociatedSubGridCommand: function ClientUI_ViewModel_ContactsViewModel$OpenAssociatedSubGridCommand() {
+    allowAddNewComputed: function ClientUI_ViewModel_ContactsViewModel$allowAddNewComputed() {
+        var parent = this.parentCustomerId();
+        return parent != null && parent.id != null && parent.id.value != null && parent.id.value.length > 0;
     }
 }
 
@@ -110,6 +118,7 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
 // ClientUI.ViewModel.ObservableContact
 
 ClientUI.ViewModel.ObservableContact = function ClientUI_ViewModel_ObservableContact() {
+    this.AddNewVisible = ko.observable(false);
     this.contactid = ko.observable();
     this.firstname = ko.observable();
     this.lastname = ko.observable();
@@ -137,28 +146,26 @@ ClientUI.ViewModel.ObservableContact.prototype = {
     
     __onSaveComplete$1: null,
     
-    _toContact$1: function ClientUI_ViewModel_ObservableContact$_toContact$1() {
-        var contact = new ClientUI.Model.Contact();
-        contact.contactid = this.contactid();
-        contact.firstname = this.firstname();
-        contact.lastname = this.lastname();
-        contact.parentcustomerid = this.parentcustomerid();
-        contact.preferredcontactmethodcode = this.preferredcontactmethodcode();
-        return contact;
-    },
-    
-    saveCommand: function ClientUI_ViewModel_ObservableContact$saveCommand() {
+    SaveCommand: function ClientUI_ViewModel_ObservableContact$SaveCommand() {
         var isValid = (this).isValid();
         if (!isValid) {
             (this).errors.showAllMessages(true);
             return;
         }
         this.isBusy(true);
-        var contact = this._toContact$1();
+        this.AddNewVisible(false);
+        var contact = new ClientUI.Model.Contact();
+        contact.firstname = this.firstname();
+        contact.lastname = this.lastname();
+        contact.parentcustomerid = this.parentcustomerid();
+        contact.preferredcontactmethodcode = this.preferredcontactmethodcode();
         Xrm.Sdk.OrganizationServiceProxy.beginCreate(contact, ss.Delegate.create(this, function(state) {
             try {
                 this.contactid(Xrm.Sdk.OrganizationServiceProxy.endCreate(state));
                 this.__onSaveComplete$1(null);
+                this.firstname(null);
+                this.lastname(null);
+                this.preferredcontactmethodcode(null);
                 (this).errors.showAllMessages(false);
             }
             catch (ex) {
@@ -168,6 +175,10 @@ ClientUI.ViewModel.ObservableContact.prototype = {
                 this.isBusy(false);
             }
         }));
+    },
+    
+    CancelCommand: function ClientUI_ViewModel_ObservableContact$CancelCommand() {
+        this.AddNewVisible(false);
     }
 }
 
@@ -181,7 +192,11 @@ ClientUI.View.ContactsView = function ClientUI_View_ContactsView() {
 }
 ClientUI.View.ContactsView.Init = function ClientUI_View_ContactsView$Init() {
     Xrm.PageEx.majorVersion = 2013;
-    ClientUI.View.ContactsView.vm = new ClientUI.ViewModel.ContactsViewModel();
+    var id;
+    var logicalName;
+    id = '3D5A7E01-0B3F-E811-A952-000D3AB899D0';
+    logicalName = 'account';
+    ClientUI.View.ContactsView.vm = new ClientUI.ViewModel.ContactsViewModel(new Xrm.Sdk.EntityReference(new Xrm.Sdk.Guid(id), logicalName, null));
     var contactsDataBinder = new SparkleXrm.GridEditor.GridDataViewBinder();
     var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout('First Name,firstname,250,Last Name,lastname,250,Preferred Contact Method,preferredcontactmethodcode,100');
     var contactsGrid = contactsDataBinder.dataBindXrmGrid(ClientUI.View.ContactsView.vm.Contacts, columns, 'container', 'pager', true, false);

@@ -38,16 +38,16 @@ ClientUI.UnitTests.ContactTests.teardown = function ClientUI_UnitTests_ContactTe
 ClientUI.UnitTests.ContactTests.testCreateContact = function ClientUI_UnitTests_ContactTests$testCreateContact(assert) {
     assert.expect(1);
     var done = assert.async();
-    var vm = new ClientUI.ViewModel.ObservableContact();
-    vm.parentcustomerid(ClientUI.UnitTests.ContactTests._account.toEntityReference());
-    vm.firstname('Test first name');
-    vm.lastname('Test last name');
-    vm.preferredcontactmethodcode(new Xrm.Sdk.OptionSetValue(1));
-    vm.add_onSaveComplete(function(message) {
+    var vm = new ClientUI.ViewModel.ContactsViewModel(ClientUI.UnitTests.ContactTests._account.toEntityReference());
+    var contact = vm.ContactEdit();
+    contact.firstname('Test first name');
+    contact.lastname('Test last name');
+    contact.preferredcontactmethodcode(new Xrm.Sdk.OptionSetValue(1));
+    contact.add_onSaveComplete(function(message) {
         assert.equal(message, null, 'Message ' + message);
         done();
     });
-    vm.saveCommand();
+    contact.saveCommand();
 }
 
 
