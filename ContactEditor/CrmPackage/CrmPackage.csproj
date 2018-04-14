@@ -62,6 +62,11 @@
       <UniqueName>ced1_/js/ClientHooks.js</UniqueName>
       <WebResourceType>Script</WebResourceType>
     </CRMWebResource>
+    <CRMWebResource Include="WebResources\js\ClientUI.debug.js">
+      <DisplayName>ced1_/js/ClientUI.debug.js</DisplayName>
+      <UniqueName>ced1_/js/ClientUI.debug.js</UniqueName>
+      <WebResourceType>Script</WebResourceType>
+    </CRMWebResource>
     <CRMWebResource Include="WebResources\js\ClientUI.js">
       <DisplayName>ced1_/js/ClientUI.js</DisplayName>
       <UniqueName>ced1_/js/ClientUI.js</UniqueName>

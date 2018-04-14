@@ -34,3 +34,5 @@ A CRM contact editor
 3. No intellisense again on unit tests
 
 4. Fiddler doesn't properly capture all traffic on my VM
+
+5. Validations on the ObservableContact don't transmit to the grid (actually they did, the validation was wrong)

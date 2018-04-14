@@ -29,9 +29,11 @@ namespace ClientUI.ViewModel
         #region Constructors
         public ContactsViewModel()
         {
-            ContactEdit = Knockout.Observable<ObservableContact>(new ObservableContact());
+            ObservableContact contact = new ObservableContact();
+            ContactEdit = (Observable<ObservableContact>)ValidatedObservableFactory.ValidatedObservable(contact);
             ContactEdit.GetValue().OnSaveComplete += ContactsViewModel_OnSaveComplete;
             Contacts.OnDataLoaded.Subscribe(Contacts_OnDataLoaded);
+            ObservableContact.RegisterValidation(Contacts.ValidationBinder);
         }
         #endregion
 
@@ -90,12 +92,10 @@ namespace ClientUI.ViewModel
         {
             if (result == null)
             {
-                ErrorMessage.SetValue(null);
+                Contacts.Reset();
+                Contacts.Refresh();
             }
-            else
-            {
-                ErrorMessage.SetValue(result);
-            }
+            ErrorMessage.SetValue(result);
         }
         #endregion
 
@@ -120,7 +120,7 @@ namespace ClientUI.ViewModel
         [PreserveCase]
         public void AddNewCommand()
         {
-
+            
         }
 
         [PreserveCase]

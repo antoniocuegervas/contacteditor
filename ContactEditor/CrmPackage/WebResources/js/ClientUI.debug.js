@@ -30,9 +30,11 @@ ClientUI.ViewModel.ContactsViewModel = function ClientUI_ViewModel_ContactsViewM
     this.AllowAddNew = ko.observable(true);
     this.Contacts = new SparkleXrm.GridEditor.EntityDataViewModel(10, ClientUI.Model.Contact, true);
     ClientUI.ViewModel.ContactsViewModel.initializeBase(this);
-    this.ContactEdit = ko.observable(new ClientUI.ViewModel.ObservableContact());
+    var contact = new ClientUI.ViewModel.ObservableContact();
+    this.ContactEdit = ko.validatedObservable(contact);
     this.ContactEdit().add_onSaveComplete(ss.Delegate.create(this, this._contactsViewModel_OnSaveComplete$1));
     this.Contacts.onDataLoaded.subscribe(ss.Delegate.create(this, this._contacts_OnDataLoaded$1));
+    ClientUI.ViewModel.ObservableContact.registerValidation(this.Contacts.validationBinder);
 }
 ClientUI.ViewModel.ContactsViewModel.prototype = {
     ContactEdit: null,
@@ -82,11 +84,10 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
     
     _contactsViewModel_OnSaveComplete$1: function ClientUI_ViewModel_ContactsViewModel$_contactsViewModel_OnSaveComplete$1(result) {
         if (result == null) {
-            this.ErrorMessage(null);
+            this.Contacts.reset();
+            this.Contacts.refresh();
         }
-        else {
-            this.ErrorMessage(result);
-        }
+        this.ErrorMessage(result);
     },
     
     search: function ClientUI_ViewModel_ContactsViewModel$search() {
@@ -115,6 +116,15 @@ ClientUI.ViewModel.ObservableContact = function ClientUI_ViewModel_ObservableCon
     this.preferredcontactmethodcode = ko.observable();
     this.parentcustomerid = ko.observable();
     ClientUI.ViewModel.ObservableContact.initializeBase(this);
+    ClientUI.ViewModel.ObservableContact.registerValidation(new SparkleXrm.ObservableValidationBinder(this));
+}
+ClientUI.ViewModel.ObservableContact.registerValidation = function ClientUI_ViewModel_ObservableContact$registerValidation(binder) {
+    binder.register('lastname', ClientUI.ViewModel.ObservableContact._validateLastName$1);
+}
+ClientUI.ViewModel.ObservableContact._validateLastName$1 = function ClientUI_ViewModel_ObservableContact$_validateLastName$1(rules, viewModel, dataContext) {
+    return rules.addRule('Required', function(value) {
+        return !String.isNullOrEmpty(value);
+    });
 }
 ClientUI.ViewModel.ObservableContact.prototype = {
     
@@ -138,12 +148,18 @@ ClientUI.ViewModel.ObservableContact.prototype = {
     },
     
     saveCommand: function ClientUI_ViewModel_ObservableContact$saveCommand() {
+        var isValid = (this).isValid();
+        if (!isValid) {
+            (this).errors.showAllMessages(true);
+            return;
+        }
         this.isBusy(true);
         var contact = this._toContact$1();
         Xrm.Sdk.OrganizationServiceProxy.beginCreate(contact, ss.Delegate.create(this, function(state) {
             try {
                 this.contactid(Xrm.Sdk.OrganizationServiceProxy.endCreate(state));
                 this.__onSaveComplete$1(null);
+                (this).errors.showAllMessages(false);
             }
             catch (ex) {
                 this.__onSaveComplete$1(ex.message);

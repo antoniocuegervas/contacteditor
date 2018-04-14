@@ -34,7 +34,7 @@ namespace ClientUI.ViewModel
 
         public ObservableContact()
         {
-
+            ObservableContact.RegisterValidation(new ObservableValidationBinder(this));
         }
 
         #region Methods
@@ -53,6 +53,12 @@ namespace ClientUI.ViewModel
         #region Commands
         public void SaveCommand()
         {
+            bool isValid = ((IValidatedObservable)this).IsValid();
+            if (!isValid)
+            {
+                ((IValidatedObservable)this).Errors.ShowAllMessages(true);
+                return;
+            }
             IsBusy.SetValue(true);
 
             Contact contact = ToContact();
@@ -63,6 +69,7 @@ namespace ClientUI.ViewModel
                 {
                     ContactId.SetValue(OrganizationServiceProxy.EndCreate(state));
                     OnSaveComplete(null);
+                    ((IValidatedObservable)this).Errors.ShowAllMessages(false);
                 }
                 catch(Exception ex)
                 {
@@ -72,6 +79,22 @@ namespace ClientUI.ViewModel
                 {
                     IsBusy.SetValue(false);
                 }
+            });
+        }
+        #endregion
+
+        #region Validation Rules
+
+        public static void RegisterValidation(ValidationBinder binder)
+        {
+            binder.Register("lastname", ValidateLastName);
+        }
+
+        private static ValidationRules ValidateLastName(ValidationRules rules, object viewModel, object dataContext)
+        {
+            return rules.AddRule("Required", delegate (object value)
+            {
+                return !string.IsNullOrEmpty((string)value);
             });
         }
         #endregion
