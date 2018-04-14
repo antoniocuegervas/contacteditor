@@ -42,7 +42,7 @@ namespace ClientUI.View
 
             ViewBase.RegisterViewModel(vm);
 
-            jQuery.OnDocumentReady(delegate () 
+            jQuery.OnDocumentReady(delegate ()
             {
                 vm.Search();
             }

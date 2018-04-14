@@ -3,11 +3,13 @@
 
 using ClientUI.Model;
 using KnockoutApi;
+using Slick;
 using SparkleXrm;
 using SparkleXrm.GridEditor;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Xrm.Sdk;
 
 namespace ClientUI.ViewModel
 {
@@ -29,10 +31,61 @@ namespace ClientUI.ViewModel
         {
             ContactEdit = Knockout.Observable<ObservableContact>(new ObservableContact());
             ContactEdit.GetValue().OnSaveComplete += ContactsViewModel_OnSaveComplete;
+            Contacts.OnDataLoaded.Subscribe(Contacts_OnDataLoaded);
         }
         #endregion
 
         #region Event Handlers 
+        private void Contacts_OnDataLoaded(EventData e, object data)
+        {
+            DataLoadedNotifyEventArgs args = (DataLoadedNotifyEventArgs)data;
+            for (int i=0; i<args.To; i++)
+            {
+                Contact contact = (Contact)Contacts.GetItem(i);
+                if (contact == null)
+                    return;
+                contact.PropertyChanged += Contact_PropertyChanged;
+            }
+        }
+
+        private void Contact_PropertyChanged(object sender, Xrm.ComponentModel.PropertyChangedEventArgs e)
+        {
+            Contact updated = (Contact)sender;
+            Contact contactToUpdate = new Contact();
+            contactToUpdate.ContactId = new Guid(updated.Id);
+            bool updateRequired = false;
+            switch(e.PropertyName)
+            {
+                case "firstname":
+                    contactToUpdate.FirstName = updated.FirstName;
+                    updateRequired = true;
+                    break;
+                case "lastname":
+                    contactToUpdate.LastName = updated.LastName;
+                    updateRequired = true;
+                    break;
+                case "preferredcontactmethodcode":
+                    contactToUpdate.PreferredContactMethodCode = updated.PreferredContactMethodCode;
+                    updateRequired = true;
+                    break;
+            }
+            if (updateRequired)
+            {
+                OrganizationServiceProxy.BeginUpdate(contactToUpdate, delegate (object state)
+                {
+                    try
+                    {
+                        OrganizationServiceProxy.EndUpdate(state);
+                        ErrorMessage.SetValue(null);
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage.SetValue(ex.Message);
+                    }
+                });
+            }
+        }
+
         private void ContactsViewModel_OnSaveComplete(string result)
         {
             if (result == null)

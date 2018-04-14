@@ -32,9 +32,53 @@ ClientUI.ViewModel.ContactsViewModel = function ClientUI_ViewModel_ContactsViewM
     ClientUI.ViewModel.ContactsViewModel.initializeBase(this);
     this.ContactEdit = ko.observable(new ClientUI.ViewModel.ObservableContact());
     this.ContactEdit().add_onSaveComplete(ss.Delegate.create(this, this._contactsViewModel_OnSaveComplete$1));
+    this.Contacts.onDataLoaded.subscribe(ss.Delegate.create(this, this._contacts_OnDataLoaded$1));
 }
 ClientUI.ViewModel.ContactsViewModel.prototype = {
     ContactEdit: null,
+    
+    _contacts_OnDataLoaded$1: function ClientUI_ViewModel_ContactsViewModel$_contacts_OnDataLoaded$1(e, data) {
+        var args = data;
+        for (var i = 0; i < args.to; i++) {
+            var contact = this.Contacts.getItem(i);
+            if (contact == null) {
+                return;
+            }
+            contact.add_propertyChanged(ss.Delegate.create(this, this._contact_PropertyChanged$1));
+        }
+    },
+    
+    _contact_PropertyChanged$1: function ClientUI_ViewModel_ContactsViewModel$_contact_PropertyChanged$1(sender, e) {
+        var updated = sender;
+        var contactToUpdate = new ClientUI.Model.Contact();
+        contactToUpdate.contactid = new Xrm.Sdk.Guid(updated.id);
+        var updateRequired = false;
+        switch (e.propertyName) {
+            case 'firstname':
+                contactToUpdate.firstname = updated.firstname;
+                updateRequired = true;
+                break;
+            case 'lastname':
+                contactToUpdate.lastname = updated.lastname;
+                updateRequired = true;
+                break;
+            case 'preferredcontactmethodcode':
+                contactToUpdate.preferredcontactmethodcode = updated.preferredcontactmethodcode;
+                updateRequired = true;
+                break;
+        }
+        if (updateRequired) {
+            Xrm.Sdk.OrganizationServiceProxy.beginUpdate(contactToUpdate, ss.Delegate.create(this, function(state) {
+                try {
+                    Xrm.Sdk.OrganizationServiceProxy.endUpdate(state);
+                    this.ErrorMessage(null);
+                }
+                catch (ex) {
+                    this.ErrorMessage(ex.message);
+                }
+            }));
+        }
+    },
     
     _contactsViewModel_OnSaveComplete$1: function ClientUI_ViewModel_ContactsViewModel$_contactsViewModel_OnSaveComplete$1(result) {
         if (result == null) {
