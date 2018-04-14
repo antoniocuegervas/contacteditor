@@ -1,6 +1,7 @@
 // ContactsGridViewModel.cs
 //
 
+using ClientUI.Model;
 using KnockoutApi;
 using SparkleXrm;
 using SparkleXrm.GridEditor;
@@ -20,8 +21,8 @@ namespace ClientUI.ViewModel
         public Observable<ObservableContact> ContactEdit;
         [PreserveCase]
         public Observable<bool> AllowAddNew = Knockout.Observable<bool>(true);
-
-        public EntityDataViewModel Contacts;
+        [PreserveCase]
+        public EntityDataViewModel Contacts = new EntityDataViewModel(10, typeof(Contact), true);
         #endregion
         #region Constructors
         public ContactsViewModel()
@@ -42,6 +43,22 @@ namespace ClientUI.ViewModel
             {
                 ErrorMessage.SetValue(result);
             }
+        }
+        #endregion
+
+        #region Methods
+
+        public void Search()
+        {
+            Contacts.FetchXml = @"<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>
+  <entity name='contact'>
+    <attribute name='firstname' />
+    <attribute name='lastname' />
+    <attribute name='contactid' />
+    {3}
+  </entity>
+</fetch>";
+            Contacts.Refresh();
         }
         #endregion
 

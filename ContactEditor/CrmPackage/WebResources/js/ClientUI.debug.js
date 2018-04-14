@@ -28,13 +28,13 @@ Type.registerNamespace('ClientUI.ViewModel');
 ClientUI.ViewModel.ContactsViewModel = function ClientUI_ViewModel_ContactsViewModel() {
     this.ErrorMessage = ko.observable();
     this.AllowAddNew = ko.observable(true);
+    this.Contacts = new SparkleXrm.GridEditor.EntityDataViewModel(10, ClientUI.Model.Contact, true);
     ClientUI.ViewModel.ContactsViewModel.initializeBase(this);
     this.ContactEdit = ko.observable(new ClientUI.ViewModel.ObservableContact());
     this.ContactEdit().add_onSaveComplete(ss.Delegate.create(this, this._contactsViewModel_OnSaveComplete$1));
 }
 ClientUI.ViewModel.ContactsViewModel.prototype = {
     ContactEdit: null,
-    contacts: null,
     
     _contactsViewModel_OnSaveComplete$1: function ClientUI_ViewModel_ContactsViewModel$_contactsViewModel_OnSaveComplete$1(result) {
         if (result == null) {
@@ -43,6 +43,11 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
         else {
             this.ErrorMessage(result);
         }
+    },
+    
+    search: function ClientUI_ViewModel_ContactsViewModel$search() {
+        this.Contacts.set_fetchXml("<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>\r\n  <entity name='contact'>\r\n    <attribute name='firstname' />\r\n    <attribute name='lastname' />\r\n    <attribute name='contactid' />\n    {3}\r\n  </entity>\r\n</fetch>");
+        this.Contacts.refresh();
     },
     
     AddNewCommand: function ClientUI_ViewModel_ContactsViewModel$AddNewCommand() {
@@ -115,9 +120,15 @@ Type.registerNamespace('ClientUI.View');
 ClientUI.View.ContactsView = function ClientUI_View_ContactsView() {
 }
 ClientUI.View.ContactsView.Init = function ClientUI_View_ContactsView$Init() {
-    Xrm.PageEx.majorVersion = 365;
+    Xrm.PageEx.majorVersion = 2013;
     ClientUI.View.ContactsView.vm = new ClientUI.ViewModel.ContactsViewModel();
+    var contactsDataBinder = new SparkleXrm.GridEditor.GridDataViewBinder();
+    var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout('First Name,firstname,250,Last Name,lastname,250');
+    var contactsGrid = contactsDataBinder.dataBindXrmGrid(ClientUI.View.ContactsView.vm.Contacts, columns, 'container', 'pager', true, false);
     SparkleXrm.ViewBase.registerViewModel(ClientUI.View.ContactsView.vm);
+    $(function() {
+        ClientUI.View.ContactsView.vm.search();
+    });
 }
 
 
