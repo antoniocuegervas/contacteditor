@@ -57,8 +57,6 @@ namespace ClientUI.UnitTests
                   done();
               };
             vm.SaveCommand();
-
-
         }
     }
 }
