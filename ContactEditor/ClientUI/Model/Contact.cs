@@ -29,6 +29,9 @@ namespace ClientUI.Model
 
         [ScriptName("parentcustomerid")]
         public EntityReference ParentCustomerId;
+
+        [ScriptName("creditlimit")]
+        public Money CreditLimit;
         #endregion
     }
 }

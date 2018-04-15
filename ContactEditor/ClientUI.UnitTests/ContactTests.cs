@@ -54,6 +54,7 @@ namespace ClientUI.UnitTests
             contact.FirstName.SetValue("Test first name");
             contact.LastName.SetValue("Test last name");
             contact.PreferredContactMethodCode.SetValue(new OptionSetValue(1)); // 1-5
+            contact.CreditLimit.SetValue(new Money(100000));
             contact.OnSaveComplete += delegate (string message)
               {
                   assert.Equal(message, null, "Message " + message);

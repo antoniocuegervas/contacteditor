@@ -33,7 +33,6 @@ namespace ClientUI.ViewModel
         #region Constructors
         public ContactsViewModel(EntityReference parentCustomerId)
         {
-
             ParentCustomerId.SetValue(parentCustomerId);
 
             ObservableContact contact = new ObservableContact();
@@ -94,6 +93,10 @@ namespace ClientUI.ViewModel
                     contactToUpdate.PreferredContactMethodCode = updated.PreferredContactMethodCode;
                     updateRequired = true;
                     break;
+                case "creditlimit":
+                    contactToUpdate.CreditLimit = updated.CreditLimit;
+                    updateRequired = true;
+                    break;
             }
             if (updateRequired)
             {
@@ -134,6 +137,7 @@ namespace ClientUI.ViewModel
     <attribute name='firstname' />
     <attribute name='lastname' />
     <attribute name='preferredcontactmethodcode' />
+    <attribute name='creditlimit' />
     <attribute name='contactid' />
     <filter type='and'>
         <condition attribute='parentcustomerid' operator='eq' value='" + parentCustomerId + @"' />

@@ -38,7 +38,7 @@ namespace ClientUI.View
             vm = new ContactsViewModel(new EntityReference(new Guid(id), logicalName, null));
 
             GridDataViewBinder contactsDataBinder = new GridDataViewBinder();
-            List<Column> columns = GridDataViewBinder.ParseLayout("First Name,firstname,250,Last Name,lastname,250,Preferred Contact Method,preferredcontactmethodcode,100");
+            List<Column> columns = GridDataViewBinder.ParseLayout("First Name,firstname,250,Last Name,lastname,250,Preferred Contact Method,preferredcontactmethodcode,100,Credit Limit,creditlimit,50");
             Grid contactsGrid = contactsDataBinder.DataBindXrmGrid(vm.Contacts, columns, "container", "pager", true, false);
 
             // contactsGrid.OnDblClick.Subscribe(ContactsGrid_OnDblClick);
@@ -52,6 +52,9 @@ namespace ClientUI.View
                     case "firstname":
                     case "lastname":
                         XrmTextEditor.BindColumn(col);
+                        break;
+                    case "creditlimit":
+                        XrmMoneyEditor.BindColumn(col, 0, 1000000000);
                         break;
                 }
             }

@@ -33,6 +33,9 @@ namespace ClientUI.ViewModel
 
         [ScriptName("parentcustomerid")]
         public Observable<EntityReference> ParentCustomerId = Knockout.Observable<EntityReference>();
+
+        [ScriptName("creditlimit")]
+        public Observable<Money> CreditLimit = Knockout.Observable<Money>();
         #endregion
 
         public ObservableContact()
@@ -62,6 +65,7 @@ namespace ClientUI.ViewModel
             contact.LastName = LastName.GetValue();
             contact.ParentCustomerId = ParentCustomerId.GetValue();
             contact.PreferredContactMethodCode = PreferredContactMethodCode.GetValue();
+            contact.CreditLimit = CreditLimit.GetValue();
 
             OrganizationServiceProxy.BeginCreate(contact, delegate (object state) 
             {

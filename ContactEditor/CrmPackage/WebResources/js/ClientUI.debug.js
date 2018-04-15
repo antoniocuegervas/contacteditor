@@ -16,7 +16,8 @@ ClientUI.Model.Contact.prototype = {
     firstname: null,
     lastname: null,
     preferredcontactmethodcode: null,
-    parentcustomerid: null
+    parentcustomerid: null,
+    creditlimit: null
 }
 
 
@@ -85,6 +86,10 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
                 contactToUpdate.preferredcontactmethodcode = updated.preferredcontactmethodcode;
                 updateRequired = true;
                 break;
+            case 'creditlimit':
+                contactToUpdate.creditlimit = updated.creditlimit;
+                updateRequired = true;
+                break;
         }
         if (updateRequired) {
             Xrm.Sdk.OrganizationServiceProxy.beginUpdate(contactToUpdate, ss.Delegate.create(this, function(state) {
@@ -109,7 +114,7 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
     
     search: function ClientUI_ViewModel_ContactsViewModel$search() {
         var parentCustomerId = this.parentCustomerId().id.toString().replaceAll('{', '').replaceAll('}', '');
-        this.Contacts.set_fetchXml("<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>\r\n  <entity name='contact'>\r\n    <attribute name='firstname' />\r\n    <attribute name='lastname' />\r\n    <attribute name='preferredcontactmethodcode' />\r\n    <attribute name='contactid' />\n    <filter type='and'>\n        <condition attribute='parentcustomerid' operator='eq' value='" + parentCustomerId + "' />\n    </filter>\n    {3}\r\n  </entity>\r\n</fetch>");
+        this.Contacts.set_fetchXml("<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>\r\n  <entity name='contact'>\r\n    <attribute name='firstname' />\r\n    <attribute name='lastname' />\r\n    <attribute name='preferredcontactmethodcode' />\r\n    <attribute name='creditlimit' />\r\n    <attribute name='contactid' />\n    <filter type='and'>\n        <condition attribute='parentcustomerid' operator='eq' value='" + parentCustomerId + "' />\n    </filter>\n    {3}\r\n  </entity>\r\n</fetch>");
         this.Contacts.refresh();
     },
     
@@ -183,6 +188,7 @@ ClientUI.ViewModel.ObservableContact = function ClientUI_ViewModel_ObservableCon
     this.lastname = ko.observable();
     this.preferredcontactmethodcode = ko.observable();
     this.parentcustomerid = ko.observable();
+    this.creditlimit = ko.observable();
     ClientUI.ViewModel.ObservableContact.initializeBase(this);
     ClientUI.ViewModel.ObservableContact.registerValidation(new SparkleXrm.ObservableValidationBinder(this));
 }
@@ -218,6 +224,7 @@ ClientUI.ViewModel.ObservableContact.prototype = {
         contact.lastname = this.lastname();
         contact.parentcustomerid = this.parentcustomerid();
         contact.preferredcontactmethodcode = this.preferredcontactmethodcode();
+        contact.creditlimit = this.creditlimit();
         Xrm.Sdk.OrganizationServiceProxy.beginCreate(contact, ss.Delegate.create(this, function(state) {
             try {
                 this.contactid(Xrm.Sdk.OrganizationServiceProxy.endCreate(state));
@@ -257,7 +264,7 @@ ClientUI.View.ContactsView.Init = function ClientUI_View_ContactsView$Init() {
     logicalName = 'account';
     ClientUI.View.ContactsView.vm = new ClientUI.ViewModel.ContactsViewModel(new Xrm.Sdk.EntityReference(new Xrm.Sdk.Guid(id), logicalName, null));
     var contactsDataBinder = new SparkleXrm.GridEditor.GridDataViewBinder();
-    var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout('First Name,firstname,250,Last Name,lastname,250,Preferred Contact Method,preferredcontactmethodcode,100');
+    var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout('First Name,firstname,250,Last Name,lastname,250,Preferred Contact Method,preferredcontactmethodcode,100,Credit Limit,creditlimit,50');
     var contactsGrid = contactsDataBinder.dataBindXrmGrid(ClientUI.View.ContactsView.vm.Contacts, columns, 'container', 'pager', true, false);
     var $enum1 = ss.IEnumerator.getEnumerator(columns);
     while ($enum1.moveNext()) {
@@ -269,6 +276,9 @@ ClientUI.View.ContactsView.Init = function ClientUI_View_ContactsView$Init() {
             case 'firstname':
             case 'lastname':
                 SparkleXrm.GridEditor.XrmTextEditor.bindColumn(col);
+                break;
+            case 'creditlimit':
+                SparkleXrm.GridEditor.XrmMoneyEditor.bindColumn(col, 0, 1000000000);
                 break;
         }
     }

@@ -43,11 +43,12 @@ ClientUI.UnitTests.ContactTests.testCreateContact = function ClientUI_UnitTests_
     contact.firstname('Test first name');
     contact.lastname('Test last name');
     contact.preferredcontactmethodcode(new Xrm.Sdk.OptionSetValue(1));
+    contact.creditlimit(new Xrm.Sdk.Money(100000));
     contact.add_onSaveComplete(function(message) {
         assert.equal(message, null, 'Message ' + message);
         done();
     });
-    contact.saveCommand();
+    contact.SaveCommand();
 }
 
 
