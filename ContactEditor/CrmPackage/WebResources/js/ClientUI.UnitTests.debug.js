@@ -11,7 +11,14 @@ Type.registerNamespace('ClientUI.UnitTests');
 ClientUI.UnitTests.Bootstrap = function ClientUI_UnitTests_Bootstrap() {
 }
 ClientUI.UnitTests.Bootstrap.RunTests = function ClientUI_UnitTests_Bootstrap$RunTests() {
-    ClientUI.UnitTests.ContactTests.run();
+    Xrm.PageEx.majorVersion = 2013;
+    var lcid = Xrm.Sdk.OrganizationServiceProxy.getUserSettings().uilanguageid;
+    SparkleXrm.LocalisedContentLoader.fallBackLCID = 0;
+    SparkleXrm.LocalisedContentLoader.supportedLCIDs.add(3082);
+    SparkleXrm.LocalisedContentLoader.supportedLCIDs.add(1033);
+    SparkleXrm.LocalisedContentLoader.loadContent('ced1_/js/Res.metadata.js', lcid, function() {
+        ClientUI.UnitTests.ContactTests.run();
+    });
 }
 
 
@@ -38,7 +45,7 @@ ClientUI.UnitTests.ContactTests.teardown = function ClientUI_UnitTests_ContactTe
 ClientUI.UnitTests.ContactTests.testCreateContact = function ClientUI_UnitTests_ContactTests$testCreateContact(assert) {
     assert.expect(1);
     var done = assert.async();
-    var vm = new ClientUI.ViewModel.ContactsViewModel(ClientUI.UnitTests.ContactTests._account.toEntityReference());
+    var vm = new ClientUI.ViewModel.ContactsViewModel(ClientUI.UnitTests.ContactTests._account.toEntityReference(), 25);
     var contact = vm.ContactEdit();
     contact.firstname('Test first name');
     contact.lastname('Test last name');

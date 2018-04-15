@@ -27,12 +27,14 @@ namespace ClientUI.ViewModel
         [PreserveCase]
         public Observable<bool> AllowOpen;
         [PreserveCase]
-        public EntityDataViewModel Contacts = new EntityDataViewModel(10, typeof(Contact), true);
+        public EntityDataViewModel Contacts;
+        [PreserveCase]
         public Observable<EntityReference> ParentCustomerId = Knockout.Observable<EntityReference>();
         #endregion
         #region Constructors
-        public ContactsViewModel(EntityReference parentCustomerId)
+        public ContactsViewModel(EntityReference parentCustomerId, int pageSize)
         {
+            Contacts = new EntityDataViewModel(pageSize, typeof(Contact), true);
             ParentCustomerId.SetValue(parentCustomerId);
 
             ObservableContact contact = new ObservableContact();

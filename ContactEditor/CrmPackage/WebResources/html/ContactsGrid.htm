@@ -110,7 +110,7 @@
 </head>
 <body class="sparkle-xrm">
     <!--ko template: { name: 'xrmPleaseWaitBlock', data: {isBusy : isBusy, isBusyProgress : isBusyProgress, isBusyMessage : isBusyMessage}} --><!--/ko-->
-    <div class="subgrid-label">CONTACTS</div>
+    <div class="subgrid-label" data-bind="text:ResourceStrings.Contact_CollectionName"></div>
     <div class="toolbar-buttons">
         <button type="button" class="gridtoolbar-button delete16" id="Delete" data-bind="visible: $root.AllowAddNew, click: $root.DeleteSelectedCommand"></button>
         <button type="button" class="gridtoolbar-button addnew16" id="AddNew" data-bind="visible: $root.AllowAddNew, click: $root.AddNewCommand"></button>
@@ -137,7 +137,7 @@
                         <!--ko template: {
                                 name: 'sparkle-form-field',
                                 data: {
-                                    label: 'Last Name',
+                                    label: ResourceStrings.LastName,
                                     field:lastname,
                                     required:0,
                                     type:'text',
@@ -150,7 +150,7 @@
                         <!--ko template: {
                                 name: 'sparkle-form-field',
                                 data: {
-                                    label: 'First Name',
+                                    label: ResourceStrings.FirstName,
                                     field:firstname,
                                     required:0,
                                     type:'text',
@@ -162,7 +162,7 @@
                         <!--ko template: {
                                 name: 'sparkle-form-field',
                                 data: {
-                                    label: 'Preferred Contact Method',
+                                    label: ResourceStrings.PreferredContactMethodCode,
                                     field:preferredcontactmethodcode,
                                     required:0,
                                     type:'optionset',
@@ -177,7 +177,7 @@
                         <!--ko template: {
                                 name: 'sparkle-form-field',
                                 data: {
-                                    label: 'Credit Limit',
+                                    label: ResourceStrings.CreditLimit,
                                     field:creditlimit,
                                     required:0,
                                     type:'money',
@@ -189,8 +189,8 @@
                     </tr>
                     <tr>
                         <td colspan="2" align="right">
-                            <button type="button" class="dialogButton" data-bind='click: SaveCommand, text: "Save", disable: isBusy'></button>
-                            <button type="button" class="dialogButton" data-bind='click: CancelCommand, text: "Cancel"'></button>
+                            <button type="button" class="dialogButton" data-bind='click: SaveCommand, text: ResourceStrings.SaveButton, disable: isBusy'></button>
+                            <button type="button" class="dialogButton" data-bind='click: CancelCommand, text: ResourceStrings.CancelButton'></button>
                         </td>
                     </tr>
             </table>
@@ -212,7 +212,7 @@
     <script src="../../sparkle_/js/SparkleXrm.js" type="text/javascript"></script>
     <script src="../../sparkle_/js/SparkleXrmUI.js" type="text/javascript"></script>
     <!-- Client Code -->
-    <script src="../js/ClientUI.debug.js" type="text/javascript"></script>
+    <script src="../js/ClientUI.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         ClientUI.View.ContactsView.Init();

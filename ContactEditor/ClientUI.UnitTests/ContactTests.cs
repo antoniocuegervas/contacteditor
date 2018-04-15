@@ -46,7 +46,7 @@ namespace ClientUI.UnitTests
             assert.Expect(1);
             Action done = assert.Async();
 
-            ContactsViewModel vm = new ContactsViewModel(account.ToEntityReference());
+            ContactsViewModel vm = new ContactsViewModel(account.ToEntityReference(), 25);
             ObservableContact contact = vm.ContactEdit.GetValue();
 
 

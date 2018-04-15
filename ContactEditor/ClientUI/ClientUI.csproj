@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Model\Contact.cs" />
+    <Compile Include="ResourceStrings.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
     <Compile Include="ViewModel\ObservableContact.cs" />
     <Compile Include="View\ContactsView.cs" />

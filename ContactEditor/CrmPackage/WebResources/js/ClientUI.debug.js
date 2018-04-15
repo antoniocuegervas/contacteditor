@@ -21,17 +21,26 @@ ClientUI.Model.Contact.prototype = {
 }
 
 
+Type.registerNamespace('ClientUI');
+
+////////////////////////////////////////////////////////////////////////////////
+// ResourceStrings
+
+ResourceStrings = function ResourceStrings() {
+}
+
+
 Type.registerNamespace('ClientUI.ViewModel');
 
 ////////////////////////////////////////////////////////////////////////////////
 // ClientUI.ViewModel.ContactsViewModel
 
-ClientUI.ViewModel.ContactsViewModel = function ClientUI_ViewModel_ContactsViewModel(parentCustomerId) {
+ClientUI.ViewModel.ContactsViewModel = function ClientUI_ViewModel_ContactsViewModel(parentCustomerId, pageSize) {
     this.ErrorMessage = ko.observable();
-    this.Contacts = new SparkleXrm.GridEditor.EntityDataViewModel(10, ClientUI.Model.Contact, true);
-    this.parentCustomerId = ko.observable();
+    this.ParentCustomerId = ko.observable();
     ClientUI.ViewModel.ContactsViewModel.initializeBase(this);
-    this.parentCustomerId(parentCustomerId);
+    this.Contacts = new SparkleXrm.GridEditor.EntityDataViewModel(pageSize, ClientUI.Model.Contact, true);
+    this.ParentCustomerId(parentCustomerId);
     var contact = new ClientUI.ViewModel.ObservableContact();
     contact.parentcustomerid(parentCustomerId);
     this.ContactEdit = ko.validatedObservable(contact);
@@ -46,6 +55,7 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
     ContactEdit: null,
     AllowAddNew: null,
     AllowOpen: null,
+    Contacts: null,
     
     _contacts_OnDataLoaded$1: function ClientUI_ViewModel_ContactsViewModel$_contacts_OnDataLoaded$1(e, data) {
         var args = data;
@@ -113,7 +123,7 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
     },
     
     search: function ClientUI_ViewModel_ContactsViewModel$search() {
-        var parentCustomerId = this.parentCustomerId().id.toString().replaceAll('{', '').replaceAll('}', '');
+        var parentCustomerId = this.ParentCustomerId().id.toString().replaceAll('{', '').replaceAll('}', '');
         this.Contacts.set_fetchXml("<fetch version='1.0' output-format='xml-platform' mapping='logical' returntotalrecordcount='true' no-lock='true' distinct='false' count='{0}' paging-cookie='{1}' page='{2}'>\r\n  <entity name='contact'>\r\n    <attribute name='firstname' />\r\n    <attribute name='lastname' />\r\n    <attribute name='preferredcontactmethodcode' />\r\n    <attribute name='creditlimit' />\r\n    <attribute name='contactid' />\n    <filter type='and'>\n        <condition attribute='parentcustomerid' operator='eq' value='" + parentCustomerId + "' />\n    </filter>\n    {3}\r\n  </entity>\r\n</fetch>");
         this.Contacts.refresh();
     },
@@ -172,7 +182,7 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
     },
     
     allowAddNewComputed: function ClientUI_ViewModel_ContactsViewModel$allowAddNewComputed() {
-        var parent = this.parentCustomerId();
+        var parent = this.ParentCustomerId();
         return parent != null && parent.id != null && parent.id.value != null && parent.id.value.length > 0;
     }
 }
@@ -196,7 +206,7 @@ ClientUI.ViewModel.ObservableContact.registerValidation = function ClientUI_View
     binder.register('lastname', ClientUI.ViewModel.ObservableContact._validateLastName$1);
 }
 ClientUI.ViewModel.ObservableContact._validateLastName$1 = function ClientUI_ViewModel_ObservableContact$_validateLastName$1(rules, viewModel, dataContext) {
-    return rules.addRule('Required', function(value) {
+    return rules.addRule(ResourceStrings.RequiredMessage, function(value) {
         return !String.isNullOrEmpty(value);
     });
 }
@@ -258,14 +268,28 @@ ClientUI.View.ContactsView = function ClientUI_View_ContactsView() {
 }
 ClientUI.View.ContactsView.Init = function ClientUI_View_ContactsView$Init() {
     Xrm.PageEx.majorVersion = 2013;
+    var lcid = Xrm.Sdk.OrganizationServiceProxy.getUserSettings().uilanguageid;
+    SparkleXrm.LocalisedContentLoader.fallBackLCID = 0;
+    SparkleXrm.LocalisedContentLoader.supportedLCIDs.add(3082);
+    SparkleXrm.LocalisedContentLoader.supportedLCIDs.add(1033);
+    SparkleXrm.LocalisedContentLoader.loadContent('ced1_/js/Res.metadata.js', lcid, function() {
+        ClientUI.View.ContactsView._initLocalisedContent();
+    });
+}
+ClientUI.View.ContactsView._initLocalisedContent = function ClientUI_View_ContactsView$_initLocalisedContent() {
+    var parameters;
     var id;
     var logicalName;
+    var pageSize = 10;
     id = '3D5A7E01-0B3F-E811-A952-000D3AB899D0';
     logicalName = 'account';
-    ClientUI.View.ContactsView.vm = new ClientUI.ViewModel.ContactsViewModel(new Xrm.Sdk.EntityReference(new Xrm.Sdk.Guid(id), logicalName, null));
+    parameters = {};
+    var parent = new Xrm.Sdk.EntityReference(new Xrm.Sdk.Guid(id), logicalName, null);
+    $(window).resize(ClientUI.View.ContactsView._onResize);
+    ClientUI.View.ContactsView._vm = new ClientUI.ViewModel.ContactsViewModel(parent, pageSize);
     var contactsDataBinder = new SparkleXrm.GridEditor.GridDataViewBinder();
-    var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout('First Name,firstname,250,Last Name,lastname,250,Preferred Contact Method,preferredcontactmethodcode,100,Credit Limit,creditlimit,50');
-    var contactsGrid = contactsDataBinder.dataBindXrmGrid(ClientUI.View.ContactsView.vm.Contacts, columns, 'container', 'pager', true, false);
+    var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout(ResourceStrings.FirstName + ',firstname,200,' + ResourceStrings.LastName + ',lastname,200,' + ResourceStrings.PreferredContactMethodCode + ',preferredcontactmethodcode,120,' + ResourceStrings.CreditLimit + ',creditlimit,120');
+    ClientUI.View.ContactsView._contactsGrid = contactsDataBinder.dataBindXrmGrid(ClientUI.View.ContactsView._vm.Contacts, columns, 'container', 'pager', true, false);
     var $enum1 = ss.IEnumerator.getEnumerator(columns);
     while ($enum1.moveNext()) {
         var col = $enum1.current;
@@ -282,18 +306,47 @@ ClientUI.View.ContactsView.Init = function ClientUI_View_ContactsView$Init() {
                 break;
         }
     }
-    SparkleXrm.ViewBase.registerViewModel(ClientUI.View.ContactsView.vm);
+    SparkleXrm.ViewBase.registerViewModel(ClientUI.View.ContactsView._vm);
+    ClientUI.View.ContactsView._onResize(null);
     $(function() {
-        ClientUI.View.ContactsView.vm.search();
+        ClientUI.View.ContactsView._vm.search();
     });
+}
+ClientUI.View.ContactsView._checkForSaved = function ClientUI_View_ContactsView$_checkForSaved() {
+    var parent = new Xrm.Sdk.EntityReference(new Xrm.Sdk.Guid(window.parent.Xrm.Page.data.entity.getId()), window.parent.Xrm.Page.data.entity.getEntityName(), null);
+    if (window.parent.Xrm.Page.ui.getFormType() !== 10*.1 && parent.id != null) {
+        ClientUI.View.ContactsView._vm.ParentCustomerId(parent);
+        ClientUI.View.ContactsView._vm.search();
+    }
+    else {
+        window.setTimeout(ClientUI.View.ContactsView._checkForSaved, 1000);
+    }
+}
+ClientUI.View.ContactsView._onResize = function ClientUI_View_ContactsView$_onResize(e) {
+    var height = $(window).height();
+    var width = $(window).width();
+    $('#container').height(height - 64).width(width - 2);
+    if (ClientUI.View.ContactsView._contactsGrid != null) {
+        ClientUI.View.ContactsView._contactsGrid.resizeCanvas();
+    }
 }
 
 
 ClientUI.Model.Contact.registerClass('ClientUI.Model.Contact', Xrm.Sdk.Entity);
+ResourceStrings.registerClass('ResourceStrings');
 ClientUI.ViewModel.ContactsViewModel.registerClass('ClientUI.ViewModel.ContactsViewModel', SparkleXrm.ViewModelBase);
 ClientUI.ViewModel.ObservableContact.registerClass('ClientUI.ViewModel.ObservableContact', SparkleXrm.ViewModelBase);
 ClientUI.View.ContactsView.registerClass('ClientUI.View.ContactsView');
-ClientUI.View.ContactsView.vm = null;
+ResourceStrings.RequiredMessage = null;
+ResourceStrings.SaveButton = null;
+ResourceStrings.CancelButton = null;
+ResourceStrings.Contact_CollectionName = null;
+ResourceStrings.FirstName = null;
+ResourceStrings.LastName = null;
+ResourceStrings.PreferredContactMethodCode = null;
+ResourceStrings.CreditLimit = null;
+ClientUI.View.ContactsView._vm = null;
+ClientUI.View.ContactsView._contactsGrid = null;
 })();
 
 //! This script was generated using Script# v0.7.4.0

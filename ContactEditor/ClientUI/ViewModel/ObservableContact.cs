@@ -106,7 +106,7 @@ namespace ClientUI.ViewModel
 
         private static ValidationRules ValidateLastName(ValidationRules rules, object viewModel, object dataContext)
         {
-            return rules.AddRule("Required", delegate (object value)
+            return rules.AddRule(ResourceStrings.RequiredMessage, delegate (object value)
             {
                 return !string.IsNullOrEmpty((string)value);
             });
