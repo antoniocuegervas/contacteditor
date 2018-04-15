@@ -44,3 +44,5 @@ A CRM contact editor
 8. Couldn't open records with double click (the event is there, but it interferes with the cells, and only works if you don't click an editable cell), so I'm adding a button to open a selected record
 
 9. ResourceStrings break the unit tests for some reason on the validations -> had to add localisation to unit tests
+
+10. Could not make the metadata service work, (keep getting an error 500)
