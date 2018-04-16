@@ -129,6 +129,8 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
     },
     
     AddNewCommand: function ClientUI_ViewModel_ContactsViewModel$AddNewCommand() {
+        this.ContactEdit().parentcustomerid(this.ParentCustomerId());
+        this.ErrorMessage(null);
         this.ContactEdit().AddNewVisible(true);
     },
     
@@ -288,7 +290,7 @@ ClientUI.View.ContactsView._initLocalisedContent = function ClientUI_View_Contac
     $(window).resize(ClientUI.View.ContactsView._onResize);
     ClientUI.View.ContactsView._vm = new ClientUI.ViewModel.ContactsViewModel(parent, pageSize);
     var contactsDataBinder = new SparkleXrm.GridEditor.GridDataViewBinder();
-    var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout(ResourceStrings.FirstName + ',firstname,200,' + ResourceStrings.LastName + ',lastname,200,' + ResourceStrings.PreferredContactMethodCode + ',preferredcontactmethodcode,120,' + ResourceStrings.CreditLimit + ',creditlimit,120');
+    var columns = SparkleXrm.GridEditor.GridDataViewBinder.parseLayout(ResourceStrings.LastName + ',lastname,200,' + ResourceStrings.FirstName + ',firstname,200,' + ResourceStrings.PreferredContactMethodCode + ',preferredcontactmethodcode,120,' + ResourceStrings.CreditLimit + ',creditlimit,120');
     ClientUI.View.ContactsView._contactsGrid = contactsDataBinder.dataBindXrmGrid(ClientUI.View.ContactsView._vm.Contacts, columns, 'container', 'pager', true, false);
     var $enum1 = ss.IEnumerator.getEnumerator(columns);
     while ($enum1.moveNext()) {

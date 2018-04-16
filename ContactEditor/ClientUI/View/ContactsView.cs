@@ -60,7 +60,7 @@ namespace ClientUI.View
             vm = new ContactsViewModel(parent, pageSize);
 
             GridDataViewBinder contactsDataBinder = new GridDataViewBinder();
-            List<Column> columns = GridDataViewBinder.ParseLayout(ResourceStrings.FirstName + ",firstname,200," + ResourceStrings.LastName + ",lastname,200," + ResourceStrings.PreferredContactMethodCode + ",preferredcontactmethodcode,120," + ResourceStrings.CreditLimit + ",creditlimit,120");
+            List<Column> columns = GridDataViewBinder.ParseLayout(ResourceStrings.LastName + ",lastname,200," + ResourceStrings.FirstName + ",firstname,200," + ResourceStrings.PreferredContactMethodCode + ",preferredcontactmethodcode,120," + ResourceStrings.CreditLimit + ",creditlimit,120");
             contactsGrid = contactsDataBinder.DataBindXrmGrid(vm.Contacts, columns, "container", "pager", true, false);
 
             foreach (Column col in columns)

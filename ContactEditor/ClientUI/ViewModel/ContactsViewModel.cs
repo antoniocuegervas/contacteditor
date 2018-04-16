@@ -155,6 +155,8 @@ namespace ClientUI.ViewModel
         [PreserveCase]
         public void AddNewCommand()
         {
+            ContactEdit.GetValue().ParentCustomerId.SetValue(ParentCustomerId.GetValue());
+            ErrorMessage.SetValue(null);
             ContactEdit.GetValue().AddNewVisible.SetValue(true);
         }
 
