@@ -128,17 +128,7 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
         this.Contacts.refresh();
     },
     
-    AddNewCommand: function ClientUI_ViewModel_ContactsViewModel$AddNewCommand() {
-        this.ContactEdit().parentcustomerid(this.ParentCustomerId());
-        this.ErrorMessage(null);
-        this.ContactEdit().AddNewVisible(true);
-    },
-    
-    DeleteSelectedCommand: function ClientUI_ViewModel_ContactsViewModel$DeleteSelectedCommand() {
-        var selectedRows = SparkleXrm.GridEditor.DataViewBase.rangesToRows(this.Contacts.getSelectedRows());
-        if (!selectedRows.length) {
-            return;
-        }
+    _delete_$1: function ClientUI_ViewModel_ContactsViewModel$_delete_$1(selectedRows) {
         var itemsToRemove = [];
         var $enum1 = ss.IEnumerator.getEnumerator(selectedRows);
         while ($enum1.moveNext()) {
@@ -158,6 +148,22 @@ ClientUI.ViewModel.ContactsViewModel.prototype = {
         this.Contacts.raiseOnSelectedRowsChanged(null);
         this.Contacts.reset();
         this.Contacts.refresh();
+    },
+    
+    AddNewCommand: function ClientUI_ViewModel_ContactsViewModel$AddNewCommand() {
+        this.ContactEdit().parentcustomerid(this.ParentCustomerId());
+        this.ErrorMessage(null);
+        this.ContactEdit().AddNewVisible(true);
+    },
+    
+    DeleteSelectedCommand: function ClientUI_ViewModel_ContactsViewModel$DeleteSelectedCommand() {
+        var selectedRows = SparkleXrm.GridEditor.DataViewBase.rangesToRows(this.Contacts.getSelectedRows());
+        if (!selectedRows.length) {
+            return;
+        }
+        Xrm.Utility.confirmDialog(String.format(ResourceStrings.ConfirmDeleteSelectedConnection, selectedRows.length), ss.Delegate.create(this, function() {
+            this._delete_$1(selectedRows);
+        }), null);
     },
     
     OpenSelectedRecordCommand: function ClientUI_ViewModel_ContactsViewModel$OpenSelectedRecordCommand() {
@@ -244,6 +250,7 @@ ClientUI.ViewModel.ObservableContact.prototype = {
                 this.firstname(null);
                 this.lastname(null);
                 this.preferredcontactmethodcode(null);
+                this.creditlimit(null);
                 (this).errors.showAllMessages(false);
             }
             catch (ex) {
@@ -347,6 +354,7 @@ ResourceStrings.FirstName = null;
 ResourceStrings.LastName = null;
 ResourceStrings.PreferredContactMethodCode = null;
 ResourceStrings.CreditLimit = null;
+ResourceStrings.ConfirmDeleteSelectedConnection = null;
 ClientUI.View.ContactsView._vm = null;
 ClientUI.View.ContactsView._contactsGrid = null;
 })();

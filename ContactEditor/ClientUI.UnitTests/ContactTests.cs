@@ -62,5 +62,7 @@ namespace ClientUI.UnitTests
               };
             contact.SaveCommand();
         }
+
+
     }
 }

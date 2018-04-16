@@ -76,6 +76,7 @@ namespace ClientUI.ViewModel
                     FirstName.SetValue(null);
                     LastName.SetValue(null);
                     PreferredContactMethodCode.SetValue(null);
+                    CreditLimit.SetValue(null);
                     ((IValidatedObservable)this).Errors.ShowAllMessages(false);
                 }
                 catch(Exception ex)

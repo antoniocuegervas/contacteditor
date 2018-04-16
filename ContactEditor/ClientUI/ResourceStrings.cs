@@ -27,5 +27,7 @@ namespace ClientUI
         public static string PreferredContactMethodCode;
         [PreserveCase]
         public static string CreditLimit;
+        [PreserveCase]
+        public static string ConfirmDeleteSelectedConnection;
     }
 }

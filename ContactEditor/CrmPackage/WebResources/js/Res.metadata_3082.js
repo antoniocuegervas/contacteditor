@@ -6,6 +6,7 @@ ResourceStrings.FirstName = 'Nombre';
 ResourceStrings.LastName = 'Apellido';
 ResourceStrings.PreferredContactMethodCode = 'Forma de Contacto Preferida';
 ResourceStrings.CreditLimit = 'Límite de Crédito';
+ResourceStrings.ConfirmDeleteSelectedConnection = 'Va a borrar {0} contactos. ¿Está seguro?';
 /*metadata
 ResourceStrings.Contact_CollectionName = <@contact.DisplayCollectionName@>;
 ResourceStrings.FirstName = <@contact.firstname.DisplayName@>

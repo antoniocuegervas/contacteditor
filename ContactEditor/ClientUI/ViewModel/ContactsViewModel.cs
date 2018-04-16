@@ -149,25 +149,9 @@ namespace ClientUI.ViewModel
 </fetch>";
             Contacts.Refresh();
         }
-        #endregion
 
-        #region Commands
-        [PreserveCase]
-        public void AddNewCommand()
+        private void Delete_(List<int> selectedRows)
         {
-            ContactEdit.GetValue().ParentCustomerId.SetValue(ParentCustomerId.GetValue());
-            ErrorMessage.SetValue(null);
-            ContactEdit.GetValue().AddNewVisible.SetValue(true);
-        }
-
-        [PreserveCase]
-        public void DeleteSelectedCommand()
-        {
-
-            List<int> selectedRows = DataViewBase.RangesToRows(Contacts.GetSelectedRows());
-            if (selectedRows.Count == 0)
-                return;
-
             List<Entity> itemsToRemove = new List<Entity>();
             foreach (int row in selectedRows)
             {
@@ -187,6 +171,30 @@ namespace ClientUI.ViewModel
             Contacts.RaiseOnSelectedRowsChanged(null);
             Contacts.Reset();
             Contacts.Refresh();
+        }
+        #endregion
+
+        #region Commands
+        [PreserveCase]
+        public void AddNewCommand()
+        {
+            ContactEdit.GetValue().ParentCustomerId.SetValue(ParentCustomerId.GetValue());
+            ErrorMessage.SetValue(null);
+            ContactEdit.GetValue().AddNewVisible.SetValue(true);
+        }
+
+        [PreserveCase]
+        public void DeleteSelectedCommand()
+        {
+            List<int> selectedRows = DataViewBase.RangesToRows(Contacts.GetSelectedRows());
+            if (selectedRows.Count == 0)
+                return;
+            Utility.ConfirmDialog(
+                String.Format(ResourceStrings.ConfirmDeleteSelectedConnection, selectedRows.Count),
+                delegate ()
+                {
+                    Delete_(selectedRows);
+                }, null);
         }
 
         [PreserveCase]
